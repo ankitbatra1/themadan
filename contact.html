@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — MADAN Solutions</title>
+  <meta name="description" content="Reach MADAN Solutions: R&D inquiries, startup ideas, and general questions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img src="logo.svg" alt="MADAN Solutions logo" />
+        <span>MADAN Solutions</span>
+      </a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="rnd.html">R&D</a>
+        <a href="launchpad.html">Startup Launchpad</a>
+        <a href="training.html">Training</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container stack-m">
+        <h1>Let's Build Something Real.</h1>
+        <p class="muted">Whether you have a question about our MADAN-Arm, want to discuss a new R&D challenge, or have a startup idea scribbled on a piece of paper, we want to hear from you.</p>
+
+        <div class="split">
+          <form id="contact-form" class="card stack-s" autocomplete="on">
+            <div class="stack-s">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" required style="padding:12px; border:1px solid var(--border); border-radius:10px;" />
+            </div>
+            <div class="stack-s">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required style="padding:12px; border:1px solid var(--border); border-radius:10px;" />
+            </div>
+            <div class="stack-s">
+              <label for="subject">Subject</label>
+              <select id="subject" name="subject" required style="padding:12px; border:1px solid var(--border); border-radius:10px;">
+                <option value="R&D Inquiry">R&D Inquiry</option>
+                <option value="Startup Idea">Startup Idea</option>
+                <option value="General Question">General Question</option>
+              </select>
+            </div>
+            <div class="stack-s">
+              <label for="message">Your Message</label>
+              <textarea id="message" name="message" rows="6" required style="padding:12px; border:1px solid var(--border); border-radius:10px;"></textarea>
+            </div>
+            <div class="stack-s">
+              <button class="btn primary" type="submit">Send Message</button>
+              <div id="form-status" class="muted" role="status"></div>
+            </div>
+          </form>
+
+          <div class="card stack-m">
+            <div>
+              <strong>Email</strong>: <a href="mailto:info@themadan.com">info@themadan.com</a>
+            </div>
+            <div>
+              <strong>Location</strong>: churu raj, India
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="stack-s">
+        <div>
+          <a href="legal.html#terms">Terms & Conditions</a> ·
+          <a href="legal.html#privacy">Privacy Policy</a> ·
+          <a href="legal.html#returns">Refund/Return Policy</a>
+        </div>
+        <div>MADAN Solutions © <span id="year"></span>. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const cfg = window.FIREBASE_CONFIG;
+    const statusEl = document.getElementById('form-status');
+    let db;
+    try {
+      const app = initializeApp(cfg);
+      db = getFirestore(app);
+    } catch (e) {
+      console.error(e);
+      if (statusEl) statusEl.textContent = 'Firebase is not configured. Please add your config.';
+    }
+
+    const form = document.getElementById('contact-form');
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!db) { statusEl.textContent = 'Cannot send: Firebase not configured.'; return; }
+      const formData = new FormData(form);
+      const payload = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message'),
+        createdAt: serverTimestamp(),
+        source: 'website-contact-form'
+      };
+      statusEl.textContent = 'Sending…';
+      try {
+        await addDoc(collection(db, 'contact_messages'), payload);
+        form.reset();
+        statusEl.textContent = 'Thanks! Your message has been sent.';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Sorry, something went wrong. Please try again later.';
+      }
+    });
+  </script>
+</body>
+</html>
+
+

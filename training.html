@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Training — MADAN Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img src="logo.svg" alt="MADAN Solutions logo" />
+        <span>MADAN Solutions</span>
+      </a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="rnd.html">R&D</a>
+        <a href="launchpad.html">Startup Launchpad</a>
+        <a href="training.html">Training</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="orbs">
+        <div class="orb cyan float-slow" style="width:280px;height:280px;left:5%;top:10%;"></div>
+        <div class="orb violet float-med" style="width:320px;height:320px;right:0%;top:20%;"></div>
+      </div>
+      <div class="container content center">
+        <div class="stack-m reveal">
+          <h1 class="headline">Build the Future, With Us.</h1>
+          <p class="subhead">Join MADAN Solutions training programs and kickstart your journey in technology & innovation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Programs Overview -->
+    <section class="section">
+      <div class="container stack-m">
+        <h2 class="center">Our Upcoming Programs</h2>
+        <div class="split">
+          <div class="card stack-s reveal">
+            <div class="icon">📱</div>
+            <h3>App Development Program</h3>
+            <p><strong>Duration:</strong> 4 Weeks</p>
+            <p><strong>Focus:</strong> Android Development with Java & Firebase</p>
+            <p><strong>Output:</strong> Publish your first working app on Play Store</p>
+            <div>
+              <a class="btn primary" href="#register">Register Now</a>
+            </div>
+          </div>
+          <div class="card stack-s reveal delay-1">
+            <div class="icon">🤖</div>
+            <h3>R&D Internship Program</h3>
+            <p><strong>Duration:</strong> 3 Months</p>
+            <p><strong>Focus:</strong> Hands-on in Robotics, AI, and Innovative Projects</p>
+            <p><strong>Output:</strong> Certificate + Real-world project contribution</p>
+            <div>
+              <a class="btn primary" href="#register">Apply Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Join -->
+    <section class="section alt">
+      <div class="container">
+        <h2 class="center">Why MADAN Training?</h2>
+        <div class="split">
+          <div class="card reveal"><strong>🔥 Real Projects</strong> — learn by building.</div>
+          <div class="card reveal delay-1"><strong>⚡ Mentorship</strong> — direct guidance from founders.</div>
+          <div class="card reveal delay-2"><strong>🚀 Career Boost</strong> — certificates + references.</div>
+          <div class="card reveal delay-3"><strong>🌍 Innovation Culture</strong> — be part of something bigger.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Registration Form -->
+    <section id="register" class="section">
+      <div class="container stack-m">
+        <h2 class="center">Reserve Your Seat</h2>
+        <form id="training-form" class="card stack-s" autocomplete="on">
+          <div class="split">
+            <div class="stack-s">
+              <label for="t-name">Name</label>
+              <input id="t-name" name="name" type="text" required style="padding:12px; border:1px solid var(--border); border-radius:10px; background: var(--panel-soft); color: var(--ink);" />
+            </div>
+            <div class="stack-s">
+              <label for="t-email">Email</label>
+              <input id="t-email" name="email" type="email" required style="padding:12px; border:1px solid var(--border); border-radius:10px; background: var(--panel-soft); color: var(--ink);" />
+            </div>
+          </div>
+          <div class="split">
+            <div class="stack-s">
+              <label for="t-phone">Phone</label>
+              <input id="t-phone" name="phone" type="tel" required style="padding:12px; border:1px solid var(--border); border-radius:10px; background: var(--panel-soft); color: var(--ink);" />
+            </div>
+            <div class="stack-s">
+              <label for="t-program">Program</label>
+              <select id="t-program" name="program" required style="padding:12px; border:1px solid var(--border); border-radius:10px; background: var(--panel-soft); color: var(--ink);">
+                <option value="App Development">App Development</option>
+                <option value="R&D Internship">R&D Internship</option>
+              </select>
+            </div>
+          </div>
+          <div class="split">
+            <div class="stack-s">
+              <label for="t-org">College/Company</label>
+              <input id="t-org" name="organization" type="text" style="padding:12px; border:1px solid var(--border); border-radius:10px; background: var(--panel-soft); color: var(--ink);" />
+            </div>
+            <div class="stack-s">
+              <label for="t-message">Message</label>
+              <input id="t-message" name="message" type="text" style="padding:12px; border:1px solid var(--border); border-radius:10px; background: var(--panel-soft); color: var(--ink);" />
+            </div>
+          </div>
+          <div class="stack-s">
+            <button class="btn primary" type="submit">Submit Registration</button>
+            <div id="t-status" class="muted" role="status"></div>
+            <div>
+              <a class="btn secondary" href="https://wa.me/918847059424" target="_blank" rel="noopener">WhatsApp Us</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section alt">
+      <div class="container stack-m">
+        <h2 class="center">FAQ</h2>
+        <details class="card"><summary>What is the fee?</summary><div style="margin-top:8px; color: var(--muted);">Fees vary by program and cohort. We'll share details after you register interest.</div></details>
+        <details class="card"><summary>Who can apply?</summary><div style="margin-top:8px; color: var(--muted);">Students, graduates, and professionals with curiosity and commitment.</div></details>
+        <details class="card"><summary>Do I need prior experience?</summary><div style="margin-top:8px; color: var(--muted);">No prior experience required for the App Dev program; basic familiarity helps. Internship expects eagerness to learn.</div></details>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+      <div class="container center stack-s">
+        <h2>Your Innovation Journey Starts Here.</h2>
+        <div class="cta-row" style="justify-content:center;">
+          <a class="btn primary" href="#register">Register Now</a>
+          <a class="btn secondary" href="contact.html">Contact Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="stack-s">
+        <div>
+          <a href="training-legal.html#terms">Terms & Conditions</a> ·
+          <a href="training-legal.html#privacy">Privacy Policy</a>
+        </div>
+        <div>MADAN Solutions © <span id="year"></span>. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const cfg = window.FIREBASE_CONFIG;
+    const statusEl = document.getElementById('t-status');
+    let db;
+    try {
+      const app = initializeApp(cfg);
+      db = getFirestore(app);
+    } catch (e) {
+      console.error(e);
+      if (statusEl) statusEl.textContent = 'Firebase is not configured. Please add your config.';
+    }
+
+    const form = document.getElementById('training-form');
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!db) { statusEl.textContent = 'Cannot submit: Firebase not configured.'; return; }
+      const formData = new FormData(form);
+      const payload = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        program: formData.get('program'),
+        organization: formData.get('organization'),
+        message: formData.get('message'),
+        createdAt: serverTimestamp(),
+        source: 'training-form'
+      };
+      statusEl.textContent = 'Submitting…';
+      try {
+        await addDoc(collection(db, 'training_registrations'), payload);
+        form.reset();
+        statusEl.textContent = 'Thanks! Your registration has been received.';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Sorry, something went wrong. Please try again later.';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
