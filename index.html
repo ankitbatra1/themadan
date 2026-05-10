@@ -624,8 +624,8 @@ function initArm(){
   if(!box||initialized)return;initialized=true;
 
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x080402);
-  scene.fog=new THREE.FogExp2(0x080402,.08);
+  scene.background=new THREE.Color(0x050a1f);
+  scene.fog=new THREE.FogExp2(0x050a1f, 0.08);
 
   camera=new THREE.PerspectiveCamera(45,box.offsetWidth/Math.max(1,box.offsetHeight),.1,100);
   camera.position.set(0,2,6);
