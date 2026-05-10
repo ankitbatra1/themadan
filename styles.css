@@ -1,747 +1,379 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MADAN SOLUTIONS — Mission of Advance Development and Next-gen Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root{
-  --bg:#0a0a0f;--fg:#f5f0e8;--muted:#9a9aaa;
-  --accent:#f0a500;--accent-hot:#ff6b35;--accent-glow:rgba(240,165,0,0.25);
-  --card-bg:rgba(14,14,22,0.88);--card-border:rgba(255,255,255,0.08);
-  --glass:rgba(14,14,22,0.82);--glass-border:rgba(255,255,255,0.1);
-  --solid-bg:#0e0e16;
-  --rain-r:180;--rain-g:200;--rain-b:220;--rain-alpha:0.32;--rain-on:1;
-  --cloud-r:30;--cloud-g:30;--cloud-b:50;--cloud-a:0.65;
-  --theme-ov:rgba(10,10,15,0);
-  --spd:1.1s;
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overflow-x:hidden;cursor:none;transition:background var(--spd) ease}
-h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif}
-::selection{background:var(--accent);color:var(--bg)}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
 
-#cursor-dot{position:fixed;width:6px;height:6px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:10001;transform:translate(-50%,-50%);transition:background .3s}
-#cursor-ring{position:fixed;width:34px;height:34px;border:1.5px solid rgba(240,165,0,0.45);border-radius:50%;pointer-events:none;z-index:10001;transform:translate(-50%,-50%);transition:width .25s,height .25s}
-body.cursor-hover #cursor-ring{width:54px;height:54px;border-color:var(--accent)}
+:root {
+    --primary: #2563eb;
+    --secondary: #0f172a;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --panel-soft: #f1f5f9;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --ink: #0f172a;
+    --shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
 
-#rain-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none}
-.cloud-layer{position:fixed;top:0;left:-10%;width:120%;height:42%;z-index:2;pointer-events:none;filter:blur(45px);opacity:var(--cloud-a);transition:opacity var(--spd) ease,filter var(--spd) ease}
-.cl1{background:radial-gradient(ellipse 38vw 13vh at 12% 18%,rgba(var(--cloud-r),var(--cloud-g),var(--cloud-b),.7) 0%,transparent 70%),radial-gradient(ellipse 48vw 16vh at 58% 8%,rgba(var(--cloud-r),var(--cloud-g),var(--cloud-b),.5) 0%,transparent 65%),radial-gradient(ellipse 28vw 11vh at 88% 22%,rgba(var(--cloud-r),var(--cloud-g),var(--cloud-b),.4) 0%,transparent 70%);animation:cd1 85s linear infinite}
-.cl2{background:radial-gradient(ellipse 42vw 14vh at 28% 14%,rgba(var(--cloud-r),var(--cloud-g),var(--cloud-b),.5) 0%,transparent 65%),radial-gradient(ellipse 52vw 17vh at 72% 6%,rgba(var(--cloud-r),var(--cloud-g),var(--cloud-b),.55) 0%,transparent 60%);animation:cd2 125s linear infinite;opacity:calc(var(--cloud-a)*.55);top:-4%}
-.cl3{background:radial-gradient(ellipse 55vw 18vh at 42% 10%,rgba(var(--cloud-r),var(--cloud-g),var(--cloud-b),.3) 0%,transparent 60%);animation:cd3 155s linear infinite;opacity:calc(var(--cloud-a)*.35);top:-6%;filter:blur(65px)}
-@keyframes cd1{to{transform:translateX(7vw)}}
-@keyframes cd2{to{transform:translateX(-5vw)}}
-@keyframes cd3{to{transform:translateX(4vw)}}
-#lightning{position:fixed;inset:0;z-index:3;pointer-events:none;background:#fff;opacity:0;transition:opacity .04s}
-#lightning.flash{opacity:.12}
-.ripple-layer{position:fixed;inset:0;z-index:16;pointer-events:none;overflow:hidden}
-.glass-ripple{position:fixed;border-radius:50%;pointer-events:none;border:1px solid rgba(var(--rain-r),var(--rain-g),var(--rain-b),.35);transform:translate(-50%,-50%) scale(0);animation:rExp 1s ease-out forwards}
-@keyframes rExp{to{transform:translate(-50%,-50%) scale(4);opacity:0}}
+/* BODY */
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
 
-/* TICKER */
-#ticker{position:fixed;top:0;left:0;right:0;z-index:200;height:32px;background:rgba(240,165,0,0.08);border-bottom:1px solid rgba(240,165,0,0.15);overflow:hidden;display:flex;align-items:center}
-#ticker-track{display:flex;white-space:nowrap;animation:tickerScroll 28s linear infinite;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--accent);letter-spacing:.08em}
-#ticker-track span{padding:0 2.5rem}
-.ticker-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin:0 1rem;vertical-align:middle;animation:blink 1.5s ease-in-out infinite}
-@keyframes tickerScroll{to{transform:translateX(-50%)}}
-@keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
+/* CONTAINER */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-/* NAV */
-#nav{position:fixed;top:32px;left:0;right:0;z-index:150;padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid var(--glass-border)}
-.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:.12em;color:var(--accent)}
-.nav-links{display:flex;gap:1.8rem}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:.82rem;font-weight:500;transition:color .3s;position:relative}
-.nav-links a:hover{color:var(--fg)}
-.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--accent);transition:width .3s}
-.nav-links a:hover::after{width:100%}
+/* HEADER */
+header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 80px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.brand img {
+    width: 45px;
+    height: 45px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: var(--primary);
+}
 
 /* HERO */
-#hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 2rem}
-.hero-title{font-size:clamp(2.8rem,7.5vw,6.5rem);font-weight:900;letter-spacing:-.02em;line-height:.95;color:var(--fg);opacity:0;transform:translateY(40px);animation:hR 1.2s ease-out 1.6s forwards}
-.hero-sub{font-size:clamp(.95rem,1.8vw,1.25rem);color:var(--muted);max-width:580px;margin-top:1.4rem;line-height:1.75;font-weight:300;opacity:0;transform:translateY(30px);animation:hR 1s ease-out 2.3s forwards}
-.hero-cta{margin-top:2.2rem;padding:.75rem 2.2rem;border:1.5px solid var(--accent);color:var(--accent);background:transparent;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;cursor:none;opacity:0;transform:translateY(20px);animation:hR 1s ease-out 2.9s forwards;transition:background .3s,color .3s,transform .2s}
-.hero-cta:hover{background:var(--accent);color:var(--bg);transform:scale(1.05)}
-@keyframes hR{to{opacity:1;transform:translateY(0)}}
-.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;opacity:0;animation:hR 1s ease-out 3.6s forwards}
-.scroll-hint span{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted)}
-.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--accent),transparent);animation:sP 2s ease-in-out infinite}
-@keyframes sP{0%,100%{opacity:.3;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
-
-.reveal{opacity:0;transform:translateY(45px);transition:opacity .8s ease,transform .8s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.sec-label{font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:.4rem}
-.sec-title{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;margin-bottom:2.5rem;line-height:1.1}
-
-/* TIMELINE */
-#timeline{position:relative;z-index:10;padding:6rem 2rem;max-width:880px;margin:0 auto}
-.cable{position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.06);transform:translateX(-50%)}
-.cable-pulse{position:absolute;left:50%;width:4px;height:70px;transform:translateX(-50%);background:linear-gradient(to bottom,transparent,var(--accent),transparent);border-radius:2px;animation:cT 4s ease-in-out infinite}
-@keyframes cT{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:calc(100% - 70px);opacity:0}}
-.era{position:relative;padding:2rem 0;display:flex;align-items:flex-start}
-.era-l{width:45%;text-align:right;padding-right:2rem}
-.era-r{width:45%;padding-left:2rem}
-.era-node{position:absolute;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);background:var(--bg);z-index:5}
-.era-node.on{background:var(--accent);box-shadow:0 0 18px var(--accent-glow)}
-.era-year{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accent)}
-.era-label{font-size:.8rem;color:var(--muted);margin-top:.2rem;font-style:italic}
-.thread{display:block;padding:.55rem 1rem;margin:.35rem 0;border-radius:10px;font-size:.82rem;font-weight:500;border:1px solid;text-align:right;position:relative;cursor:default;transition:transform .5s,opacity .5s}
-.thread:hover .thread-desc{opacity:1;transform:translateX(0);pointer-events:auto}
-.thread-desc{position:absolute;left:105%;top:50%;transform:translateY(-50%) translateX(8px);width:220px;padding:.8rem 1rem;border-radius:10px;background:var(--solid-bg);border:1px solid var(--card-border);font-size:.75rem;color:var(--muted);line-height:1.6;text-align:left;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:20;box-shadow:0 8px 30px rgba(0,0,0,.5)}
-.thread-desc::before{content:'';position:absolute;left:-6px;top:50%;transform:translateY(-50%) rotate(45deg);width:10px;height:10px;background:var(--solid-bg);border-left:1px solid var(--card-border);border-bottom:1px solid var(--card-border)}
-.thread-merged{transform:scale(0)!important;opacity:0!important}
-.fusion-node{text-align:center;padding:2.5rem 1rem}
-.fusion-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(1rem,2.5vw,1.5rem);font-weight:800;color:var(--accent);letter-spacing:.05em;opacity:0;transform:scale(.5);transition:opacity .8s,transform .8s cubic-bezier(.34,1.56,.64,1)}
-.fusion-title.vis{opacity:1;transform:scale(1)}
-.fusion-ring{width:100px;height:100px;margin:1.2rem auto;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;animation:fP 3s ease-in-out infinite;opacity:0;transition:opacity .8s .3s}
-.fusion-ring.vis{opacity:1}
-.fusion-ring-in{width:50px;height:50px;border-radius:50%;background:var(--accent);opacity:.5}
-@keyframes fP{0%,100%{box-shadow:0 0 0 0 var(--accent-glow)}50%{box-shadow:0 0 0 18px rgba(240,165,0,0)}}
-
-/* PROJECTS */
-#projects{position:relative;z-index:10;padding:6rem 2rem;max-width:1200px;margin:0 auto}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.3rem;margin-top:1.5rem}
-.pcard{position:relative;padding:1.8rem;border-radius:14px;overflow:hidden;background:var(--card-bg);border:1px solid var(--card-border);cursor:none;transition:transform .4s,border-color .4s,box-shadow .4s}
-.pcard:hover{transform:translateY(-5px);box-shadow:0 16px 50px rgba(0,0,0,.4)}
-.pcard-vis{position:absolute;top:0;left:0;right:0;height:120px;overflow:hidden;opacity:.35;transition:opacity .4s}
-.pcard:hover .pcard-vis{opacity:.6}
-.pcard-body{position:relative;z-index:2}
-.pcard-tag{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:.4rem}
-.pcard-name{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.4rem}
-.pcard-desc{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1rem}
-.pcard-go{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--accent);font-weight:600;transition:gap .3s}
-.pcard:hover .pcard-go{gap:1rem}
-.vis-boxki{background:linear-gradient(135deg,rgba(255,159,67,.25),rgba(254,202,87,.08),transparent)}
-.vis-arm{background:linear-gradient(135deg,rgba(255,69,0,.18),rgba(138,138,154,.08),transparent)}
-.vis-mart{background:repeating-linear-gradient(0deg,transparent,transparent 9px,rgba(0,255,136,.04) 9px,rgba(0,255,136,.04) 10px),repeating-linear-gradient(90deg,transparent,transparent 9px,rgba(0,255,136,.04) 9px,rgba(0,255,136,.04) 10px)}
-.vis-agri{background:linear-gradient(180deg,rgba(74,222,128,.12),rgba(139,105,20,.08),transparent)}
-.vis-cutie{background:radial-gradient(circle at 30% 50%,rgba(255,107,157,.18),transparent 55%),radial-gradient(circle at 70% 50%,rgba(0,212,255,.12),transparent 55%)}
-.vis-lens{background:radial-gradient(circle at 50% 50%,rgba(0,212,255,.2),transparent 60%)}
-
-/* OVERLAY — SOLID BACKGROUNDS */
-#overlay{position:fixed;inset:0;z-index:500;pointer-events:none;opacity:0;transition:opacity .5s}
-#overlay.on{pointer-events:all;opacity:1}
-#overlay-bg{position:absolute;inset:0;background:var(--solid-bg);transition:background var(--spd)}
-#overlay-back{position:fixed;top:48px;left:1.5rem;z-index:600;background:var(--accent);color:var(--bg);padding:.65rem 1.6rem;border-radius:28px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;cursor:none;border:none;letter-spacing:.05em;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(240,165,0,.3)}
-#overlay-back:hover{transform:scale(1.05);box-shadow:0 6px 28px rgba(240,165,0,.5)}
-#overlay-scroll{position:relative;z-index:2;width:100%;height:100%;overflow-y:auto;padding:6rem 2rem 4rem;opacity:0;transform:translateY(25px);transition:opacity .5s .2s,transform .5s .2s}
-#overlay.on #overlay-scroll{opacity:1;transform:translateY(0)}
-.ov-inner{max-width:880px;margin:0 auto}
-.ov-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1;margin-bottom:.4rem}
-.ov-sub{font-size:1rem;color:var(--muted);margin-bottom:2rem;font-weight:300}
-.ov-text{color:var(--muted);line-height:1.8;max-width:620px;margin-bottom:1.8rem;font-size:.92rem}
-.ov-card{padding:1.2rem;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--card-border)}
-.ov-card-label{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;font-weight:600}
-.ov-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
-
-/* BOXKI */
-.boxki-mon{width:300px;height:220px;margin:2rem auto;border-radius:14px;background:rgba(20,16,8,.95);border:2px solid rgba(255,159,67,.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:0 0 50px rgba(255,159,67,.08)}
-.boxki-bot{position:relative;width:70px;height:90px}
-.boxki-hd{width:52px;height:42px;margin:0 auto;border-radius:18px 18px 12px 12px;background:rgba(255,159,67,.12);border:1px solid rgba(255,159,67,.35);position:relative}
-.boxki-eye{width:8px;height:8px;border-radius:50%;background:#ff9f43;position:absolute;top:14px;transition:transform .08s;box-shadow:0 0 7px rgba(255,159,67,.5)}
-.boxki-eye.l{left:10px}.boxki-eye.r{right:10px}
-.boxki-mth{width:14px;height:2.5px;background:rgba(255,159,67,.35);border-radius:2px;position:absolute;bottom:8px;left:50%;transform:translateX(-50%)}
-.boxki-ant{width:2px;height:13px;background:rgba(255,159,67,.35);position:absolute;top:-13px;left:50%;transform:translateX(-50%)}
-.boxki-ant::after{content:'';position:absolute;top:-3px;left:-3px;width:7px;height:7px;border-radius:50%;background:#ff9f43;animation:aG 2s ease-in-out infinite}
-@keyframes aG{0%,100%{box-shadow:0 0 3px rgba(255,159,67,.3)}50%{box-shadow:0 0 10px rgba(255,159,67,.7)}}
-.boxki-bd{width:34px;height:28px;margin:3px auto 0;border-radius:7px;background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.25)}
-.boxki-spk{position:absolute;top:8px;right:-135px;width:125px;padding:.5rem .7rem;background:var(--solid-bg);border:1px solid rgba(255,159,67,.2);border-radius:9px;font-size:.68rem;color:#ff9f43;line-height:1.4;opacity:0;transform:translateX(8px);transition:opacity .4s,transform .4s;box-shadow:0 4px 16px rgba(0,0,0,.4)}
-.boxki-spk.show{opacity:1;transform:translateX(0)}
-
-/* ARM 3D */
-#arm-box{width:100%;height:400px;border-radius:14px;overflow:hidden;background:rgba(8,4,2,.95);border:1px solid rgba(255,69,0,.12);position:relative}
-#arm-box canvas{width:100%!important;height:100%!important}
-.arm-btns{display:flex;gap:.8rem;margin-top:1rem;justify-content:center;flex-wrap:wrap}
-.arm-btn{padding:.5rem 1.3rem;border-radius:26px;border:1px solid rgba(255,69,0,.25);background:rgba(255,69,0,.06);color:#ff4500;font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;cursor:none;transition:all .3s}
-.arm-btn:hover{background:rgba(255,69,0,.15);border-color:rgba(255,69,0,.4)}
-.arm-btn.act{background:#ff4500;color:var(--bg)}
-.arm-patent{font-size:.78rem;color:var(--muted);line-height:1.8;margin-top:1.5rem;padding:1.2rem;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--card-border);font-family:'Share Tech Mono',monospace}
-
-/* MARTUNO */
-.iso-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;transform:rotateX(55deg) rotateZ(-45deg);transform-style:preserve-3d;margin:2rem auto;width:fit-content}
-.iso-b{width:55px;height:35px;border-radius:3px;position:relative;transform-style:preserve-3d;transition:transform .3s;cursor:none;border:1px solid rgba(0,255,136,.12)}
-.iso-b:hover{transform:translateZ(8px)}
-.iso-bub{position:absolute;top:-8px;right:-8px;width:14px;height:14px;border-radius:50%;background:rgba(0,255,136,.6);animation:bP 2s ease-in-out infinite}
-@keyframes bP{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.3);opacity:1}}
-
-/* AGRI */
-#agri-cv{width:100%;height:320px;border-radius:14px;background:rgba(4,8,4,.95);border:1px solid rgba(74,222,128,.1)}
-.agri-ctrls{display:flex;gap:1rem;margin-top:1.2rem;flex-wrap:wrap;justify-content:center}
-.agri-in{display:flex;flex-direction:column;align-items:center;gap:.2rem}
-.agri-in label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-.agri-in input[type=range]{width:90px;accent-color:#4ade80;cursor:none;-webkit-appearance:none;height:3px;background:rgba(74,222,128,.15);border-radius:2px}
-.agri-in input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#4ade80;cursor:none}
-.agri-in span{font-size:.72rem;color:#4ade80}
-
-/* CUTIE */
-#cutie-cv{width:100%;height:380px;border-radius:14px;background:rgba(12,8,20,.95);border:1px solid rgba(255,107,157,.12);cursor:none}
-
-/* LENS */
-#lens-cv{width:100%;height:420px;border-radius:14px;background:rgba(4,8,16,.95);border:1px solid rgba(0,212,255,.12)}
-
-/* TRAINING */
-#training{position:relative;z-index:10;padding:6rem 2rem;max-width:1000px;margin:0 auto}
-.train-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin-top:1.5rem}
-.train-card{padding:1.8rem;border-radius:14px;background:var(--card-bg);border:1px solid var(--card-border);transition:transform .3s,border-color .3s;cursor:default}
-.train-card:hover{transform:translateY(-3px);border-color:rgba(240,165,0,.2)}
-.train-price{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent);margin-top:.8rem}
-.apply-btn{display:inline-block;margin-top:2rem;padding:.85rem 2.8rem;background:var(--accent);color:var(--bg);font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:none;border:none;border-radius:8px;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(240,165,0,.2)}
-.apply-btn:hover{transform:scale(1.05);box-shadow:0 6px 30px rgba(240,165,0,.35)}
-
-/* TRAINING MODAL */
-#train-modal{position:fixed;inset:0;z-index:700;pointer-events:none;opacity:0;transition:opacity .4s}
-#train-modal.on{pointer-events:all;opacity:1}
-#train-modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px)}
-#train-modal-box{position:relative;z-index:2;max-width:560px;margin:8vh auto;background:var(--solid-bg);border:1px solid var(--card-border);border-radius:18px;padding:2.5rem;max-height:85vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .4s .1s;box-shadow:0 20px 60px rgba(0,0,0,.6)}
-#train-modal.on #train-modal-box{transform:translateY(0) scale(1)}
-#train-modal-close{position:absolute;top:1rem;right:1rem;width:36px;height:36px;border-radius:50%;border:1px solid var(--card-border);background:transparent;color:var(--muted);font-size:1rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .2s}
-#train-modal-close:hover{background:rgba(255,255,255,.08);color:var(--fg)}
-.tm-title{font-size:1.4rem;font-weight:800;margin-bottom:.3rem}
-.tm-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem}
-.tm-field{margin-bottom:1rem}
-.tm-field label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.3rem;letter-spacing:.08em;text-transform:uppercase}
-.tm-field input,.tm-field select{width:100%;padding:.65rem 1rem;border-radius:8px;border:1px solid var(--card-border);background:rgba(255,255,255,.04);color:var(--fg);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
-.tm-field input:focus,.tm-field select:focus{border-color:var(--accent)}
-.tm-field select option{background:var(--solid-bg);color:var(--fg)}
-.tm-track-cards{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.2rem}
-.tm-track{padding:.8rem 1rem;border-radius:10px;border:1px solid var(--card-border);cursor:none;transition:all .2s;display:flex;align-items:center;gap:.8rem}
-.tm-track:hover{border-color:rgba(240,165,0,.3)}
-.tm-track.sel{border-color:var(--accent);background:rgba(240,165,0,.06)}
-.tm-track-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--card-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
-.tm-track.sel .tm-track-radio{border-color:var(--accent)}
-.tm-track.sel .tm-track-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.tm-track-info{flex:1}
-.tm-track-name{font-size:.85rem;font-weight:600}
-.tm-track-desc{font-size:.72rem;color:var(--muted)}
-.pay-btn{width:100%;padding:.85rem;background:var(--accent);color:var(--bg);font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:none;border:none;border-radius:8px;margin-top:.5rem;transition:transform .2s,box-shadow .2s}
-.pay-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(240,165,0,.3)}
-
-/* FOOTER */
-#footer{position:relative;z-index:10;padding:3rem 2rem;text-align:center;border-top:1px solid var(--card-border);font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);letter-spacing:.15em;line-height:2}
-
-/* THEMES */
-.theme-boxki{--bg:#1a1510;--cloud-r:60;--cloud-g:40;--cloud-b:10;--cloud-a:.25;--rain-on:0;--theme-ov:rgba(40,30,10,.5)}
-.theme-forge{--bg:#1a0a05;--cloud-r:80;--cloud-g:20;--cloud-b:5;--cloud-a:.45;--rain-r:255;--rain-g:100;--rain-b:30;--rain-alpha:.22;--theme-ov:rgba(40,10,2,.5)}
-.theme-nexus{--bg:#050a14;--cloud-r:5;--cloud-g:20;--cloud-b:40;--cloud-a:.35;--rain-r:0;--rain-g:255;--rain-b:136;--rain-alpha:.18;--theme-ov:rgba(2,8,20,.5)}
-.theme-terra{--bg:#0a140a;--cloud-r:20;--cloud-g:50;--cloud-b:20;--cloud-a:.3;--rain-r:100;--rain-g:200;--rain-b:100;--rain-alpha:.12;--theme-ov:rgba(5,15,5,.5)}
-.theme-thread{--bg:#0f0a1a;--cloud-r:30;--cloud-g:15;--cloud-b:50;--cloud-a:.35;--rain-r:255;--rain-g:107;--rain-b:157;--rain-alpha:.12;--theme-ov:rgba(10,5,20,.5)}
-.theme-lens{--bg:#040810;--cloud-r:5;--cloud-g:15;--cloud-b:50;--cloud-a:.4;--rain-r:0;--rain-g:212;--rain-b:255;--rain-alpha:.15;--theme-ov:rgba(2,4,10,.5)}
-
-/* TOAST */
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);z-index:800;padding:.8rem 2rem;border-radius:10px;background:var(--solid-bg);border:1px solid var(--accent);color:var(--accent);font-size:.85rem;font-weight:600;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .cable{left:22px}.era{flex-direction:column;padding-left:50px}.era-l,.era-r{width:100%;text-align:left;padding:0}.era-node{left:22px}
-  .thread{text-align:left}.thread-desc{left:auto;right:0;top:110%;transform:none}.thread-desc::before{display:none}
-  .pgrid{grid-template-columns:1fr}
-  body{cursor:auto}#cursor-dot,#cursor-ring{display:none}
-  .iso-grid{transform:rotateX(45deg) rotateZ(-45deg) scale(.65)}
-  .boxki-mon{width:240px;height:180px}.boxki-spk{display:none}
-  #arm-box{height:300px}
-  .train-grid{grid-template-columns:1fr}
-  .nav-links{gap:1rem}.nav-links a{font-size:.75rem}
+.hero {
+    position: relative;
+    padding: 120px 0;
+    overflow: hidden;
+    text-align: center;
 }
-footer {
-    padding: 32px 0;
-    border-top: 1px solid var(--border);
+
+.content {
+    position: relative;
+    z-index: 2;
+}
+
+.center {
+    text-align: center;
+}
+
+.headline {
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.subhead {
+    font-size: 20px;
     color: var(--muted);
-    font-size: 14px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* ORBS */
+.orbs {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+}
+
+.cyan {
+    background: cyan;
+}
+
+.violet {
+    background: violet;
+}
+
+/* SECTION */
+.section {
+    padding: 80px 0;
+}
+
+.alt {
+    background: #eef4ff;
+}
+
+/* STACKS */
+.stack-l {
     display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.stack-m {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.stack-s {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* SPLIT LAYOUT */
+.split {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+    align-items: stretch;
+}
+
+/* CARD */
+.card {
+    background: var(--surface);
+    padding: 32px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    width: 100%;
+}
+
+.card h1 {
+    font-size: 34px;
+    color: var(--primary);
+    font-weight: 800;
+}
+
+.card h2 {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.card h3 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.card p {
+    color: var(--muted);
+    font-size: 16px;
+}
+
+.card ul {
+    padding-left: 20px;
+}
+
+.card li {
+    margin-bottom: 10px;
+    color: var(--muted);
+}
+
+/* ICON */
+.icon {
+    font-size: 40px;
+    text-align: center;
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.primary:hover {
+    transform: translateY(-2px);
+}
+
+.secondary {
+    background: var(--panel-soft);
+    color: var(--text);
+}
+
+.secondary:hover {
+    transform: translateY(-2px);
+}
+
+/* FORM */
+form {
+    width: 100%;
+}
+
+label {
+    font-weight: 600;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel-soft);
+    font-size: 15px;
+    color: var(--ink);
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* STATUS */
+.muted {
+    color: var(--muted);
+}
+
+/* FAQ */
+details summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+/* CTA */
+.cta-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
 }
-@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
-</style>
-</head>
-<body>
 
-<div id="loader" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .8s;pointer-events:none"><span style="font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--muted);letter-spacing:.3em;animation:blink 1.5s ease-in-out infinite">INITIALIZING STORM</span></div>
-
-<canvas id="rain-canvas"></canvas>
-<div class="cloud-layer cl1" id="cl1"></div>
-<div class="cloud-layer cl2" id="cl2"></div>
-<div class="cloud-layer cl3" id="cl3"></div>
-<div id="lightning"></div>
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
-<div class="ripple-layer" id="ripL"></div>
-
-<!-- TICKER -->
-<div id="ticker" role="marquee" aria-label="Recruitment status">
-  <div id="ticker-track">
-    <span><span class="ticker-dot"></span>[LIVE_STATUS]: SUMMER TRAINING RECRUITMENT OPEN</span>
-    <span><span class="ticker-dot"></span>[SESSION]: JUNE-JULY 2026</span>
-    <span><span class="ticker-dot"></span>[CORE_STRUGGLE]: ACTIVE</span>
-    <span><span class="ticker-dot"></span>MADAN SOLUTIONS — Mission of Advance Development and Next-gen Solutions</span>
-    <span><span class="ticker-dot"></span>[LIVE_STATUS]: SUMMER TRAINING RECRUITMENT OPEN</span>
-    <span><span class="ticker-dot"></span>[SESSION]: JUNE-JULY 2026</span>
-    <span><span class="ticker-dot"></span>[CORE_STRUGGLE]: ACTIVE</span>
-    <span><span class="ticker-dot"></span>MADAN SOLUTIONS — Mission of Advance Development and Next-gen Solutions</span>
-  </div>
-</div>
-
-<!-- NAV -->
-<nav id="nav" role="navigation" aria-label="Main navigation">
-  <div class="nav-logo">MADAN SOLUTIONS</div>
-  <div class="nav-links">
-    <a href="#timeline">Chronology</a>
-    <a href="#training">Training</a>
-    <a href="#projects">Projects</a>
-  </div>
-</nav>
-
-<main id="main">
-  <!-- HERO -->
-  <section id="hero" aria-label="Hero">
-    <h1 class="hero-title">MADAN<br>SOLUTIONS</h1>
-    <p class="hero-sub">Mission of Advance Development and Next-gen Solutions. Where hardware, software, and human empathy collide under the weight of relentless innovation.</p>
-    <button class="hero-cta" onclick="document.getElementById('timeline').scrollIntoView({behavior:'smooth'})">Descend into the Storm</button>
-    <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
-  </section>
-
-  <!-- TIMELINE -->
-  <section id="timeline" aria-label="Timeline">
-    <div class="reveal"><div class="sec-label">Nexus Evolution</div><h2 class="sec-title">The Parallel Timeline</h2></div>
-    <div style="position:relative;padding:2rem 0">
-      <div class="cable"></div><div class="cable-pulse"></div>
-
-      <div class="era reveal">
-        <div class="era-node on"></div>
-        <div class="era-l"><div class="era-year">2021 — 2023</div><div class="era-label">The Foundation Threads</div></div>
-        <div class="era-r">
-          <div class="thread expandable" style="border-color:rgba(255,69,0,.35);color:#ff4500">Madan-Arm<div class="thread-desc">Revolutionary gear-based mechanism research to replace conventional thread-based prosthetic joints.</div></div>
-          <div class="thread expandable" style="border-color:rgba(0,255,136,.35);color:#00ff88">martUno<div class="thread-desc">Development of the 3-level hyperlocal commerce system and Teezz Shopkeeper platform.</div></div>
-          <div class="thread expandable" style="border-color:rgba(0,212,255,.35);color:#00d4ff">Research<div class="thread-desc">Authoring six research papers, including the Drowsiness Monitoring System using OpenCV.</div></div>
-        </div>
-      </div>
-
-      <div class="era reveal" id="sing-era">
-        <div class="era-node on" style="width:18px;height:18px;box-shadow:0 0 28px var(--accent-glow)"></div>
-        <div class="era-l" style="width:100%;text-align:center;padding:0">
-          <div class="fusion-node">
-            <div class="era-year">2024</div><div class="era-label" style="margin-bottom:.8rem">The Singularity</div>
-            <div class="fusion-ring" id="fRing"><div class="fusion-ring-in"></div></div>
-            <div class="fusion-title" id="fTitle">MADAN SOLUTIONS<br>INCORPORATED</div>
-            <p style="font-size:.78rem;color:var(--muted);margin-top:.8rem;max-width:350px;margin-left:auto;margin-right:auto;line-height:1.6">Official formation, named after the founder's grandfather — transforming parallel threads into a singular corporate entity.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="era reveal" id="exp-era">
-        <div class="era-node on"></div>
-        <div class="era-l"><div class="era-year">2025 — 2026</div><div class="era-label">Expansion Tracks</div></div>
-        <div class="era-r">
-          <div class="thread expandable" style="border-color:rgba(255,159,67,.3);color:#ff9f43;transform:scale(0);opacity:0">BOXKI<div class="thread-desc">Desktop AI companion powered by Raspberry Pi Zero 2W for real-time sentiment visualization.</div></div>
-          <div class="thread expandable" style="border-color:rgba(240,165,0,.3);color:#f0a500;transform:scale(0);opacity:0">IP Strategy<div class="thread-desc">Major share control of Invention Disclosure Forms for the Intelligent Lens System and emotion recognition hardware.</div></div>
-          <div class="thread expandable" style="border-color:rgba(255,107,157,.3);color:#ff6b9d;transform:scale(0);opacity:0">Collaboration<div class="thread-desc">Cutie Connect for shared reminders and the Shared Mobile Canvas Widget.</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TRAINING -->
-  <section id="training" aria-label="Training">
-    <div class="reveal"><div class="sec-label">Industrial Summer Training</div><h2 class="sec-title">June — July 2026</h2></div>
-    <div class="reveal">
-  <p style="color:var(--muted);max-width:650px;line-height:1.8;margin-bottom:1rem">
-    We are hiring trainees to move beyond theory and work on active MADAN Solutions company projects. This is not a classroom. This is the factory floor of real innovation.
-  </p>
-  <a href="https://docs.google.com/forms/d/e/1FAIpQLSe4H7YuxWoUNAgiNTf-Zm7s8F52Q-rgUH_9psFnELQMroGtug/viewform?usp=dialog" target="_blank" style="text-decoration: none;">
-    <button class="apply-btn" id="apply-btn">Apply Now</button>
-  </a>
-</div>
-    <div class="train-grid reveal">
-      <div class="train-card">
-        <div style="font-size:1.6rem;color:var(--accent);margin-bottom:.6rem"><i class="fa-brands fa-android"></i></div>
-        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.4rem">App Developer Trainee</h3>
-        <p style="font-size:.82rem;color:var(--muted);line-height:1.6">Focus on Java, Firebase, and Android Architecture. Build real applications deployed through the MADAN pipeline.</p>
-        <div class="train-price">₹3,500</div>
-      </div>
-      <div class="train-card">
-        <div style="font-size:1.6rem;color:var(--accent);margin-bottom:.6rem"><i class="fa-solid fa-globe"></i></div>
-        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.4rem">Web Developer Trainee</h3>
-        <p style="font-size:.82rem;color:var(--muted);line-height:1.6">Focus on Spring Boot, MongoDB, and Next.js. Full-stack exposure on live commercial products.</p>
-        <div class="train-price">₹4,000</div>
-      </div>
-      <div class="train-card">
-        <div style="font-size:1.6rem;color:var(--accent);margin-bottom:.6rem"><i class="fa-solid fa-brain"></i></div>
-        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.4rem">Data Analyst Trainee</h3>
-        <p style="font-size:.82rem;color:var(--muted);line-height:1.6">Focus on TinyML, Predictive Analytics (Agri-Systems), and Computer Vision. Work with real sensor data.</p>
-        <div class="train-price">₹4,500</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section id="projects" aria-label="Projects">
-    <div class="reveal"><div class="sec-label">Project Micro-Worlds</div><h2 class="sec-title">Select a Reality</h2><p style="color:var(--muted);max-width:580px;line-height:1.7;margin-bottom:1rem">Each project exists in its own atmospheric world. Select one to experience a total reality shift.</p></div>
-    <div class="pgrid">
-      <article class="pcard reveal" data-p="boxki" tabindex="0" role="button"><div class="pcard-vis vis-boxki"></div><div class="pcard-body"><div class="pcard-tag">Inner Sanctum</div><h3 class="pcard-name">BOXKI</h3><p class="pcard-desc">Desktop AI companion powered by Raspberry Pi Zero 2W for real-time sentiment visualization.</p><div class="pcard-go">Enter World <i class="fa-solid fa-arrow-right" style="font-size:.65rem"></i></div></div></article>
-      <article class="pcard reveal" data-p="arm" tabindex="0" role="button"><div class="pcard-vis vis-arm"></div><div class="pcard-body"><div class="pcard-tag">The Forge</div><h3 class="pcard-name">MADAN-Arm</h3><p class="pcard-desc">Revolutionary gear-based mechanism replacing conventional thread-based prosthetic joints.</p><div class="pcard-go">Enter World <i class="fa-solid fa-arrow-right" style="font-size:.65rem"></i></div></div></article>
-      <article class="pcard reveal" data-p="agri" tabindex="0" role="button"><div class="pcard-vis vis-agri"></div><div class="pcard-body"><div class="pcard-tag">Terraform</div><h3 class="pcard-name">Agri-Predictor</h3><p class="pcard-desc">Manual soil intelligence — zero geo-mapping. Pure data-driven crop intelligence through environmental inputs.</p><div class="pcard-go">Enter World <i class="fa-solid fa-arrow-right" style="font-size:.65rem"></i></div></div></article>
-      <article class="pcard reveal" data-p="martuno" tabindex="0" role="button"><div class="pcard-vis vis-mart"></div><div class="pcard-body"><div class="pcard-tag">Nexus Grid</div><h3 class="pcard-name">martUno</h3><p class="pcard-desc">3-level hyperlocal commerce system bridging local shopkeepers to the digital economy.</p><div class="pcard-go">Enter World <i class="fa-solid fa-arrow-right" style="font-size:.65rem"></i></div></div></article>
-      <article class="pcard reveal" data-p="cutie" tabindex="0" role="button"><div class="pcard-vis vis-cutie"></div><div class="pcard-body"><div class="pcard-tag">The Shared Thread</div><h3 class="pcard-name">Cutie Connect</h3><p class="pcard-desc">Shared reminders and the Shared Mobile Canvas Widget — two cursors, one intimate digital space.</p><div class="pcard-go">Enter World <i class="fa-solid fa-arrow-right" style="font-size:.65rem"></i></div></div></article>
-      <article class="pcard reveal" data-p="lens" tabindex="0" role="button"><div class="pcard-vis vis-lens"></div><div class="pcard-body"><div class="pcard-tag">Optics Lab</div><h3 class="pcard-name">Intelligent Lens System</h3><p class="pcard-desc">Invention Disclosure Filed — emotion recognition hardware with VR optics and adaptive lens-flare technology.</p><div class="pcard-go">Enter World <i class="fa-solid fa-arrow-right" style="font-size:.65rem"></i></div></div></article>
-    </div>
-  </section>
-
-  
-  <footer>
-    <div class="container">
-      <div class="stack-s">
-        <div>
-          <a href="legal.html#terms">Terms & Conditions</a> ·
-          <a href="legal.html#privacy">Privacy Policy</a> ·
-          <a href="legal.html#returns">Refund/Return Policy</a>
-        </div>
-        <div>MADAN Solutions © <span id="year"></span>. All rights reserved.</div>
-      </div>
-    </div>
-  </footer>
-</main>
-
-<!-- PROJECT OVERLAY -->
-<div id="overlay" role="dialog" aria-modal="true">
-  <div id="overlay-bg"></div>
-  <button id="overlay-back" aria-label="Return to main"><i class="fa-solid fa-arrow-left" style="margin-right:8px"></i>Return to Storm</button>
-  <div id="overlay-scroll"></div>
-</div>
-
-<!-- TRAINING MODAL -->
-<div id="train-modal" role="dialog" aria-modal="true">
-  <div id="train-modal-bg"></div>
-  <div id="train-modal-box">
-    <button id="train-modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
-    <h3 class="tm-title">Summer Training Application</h3>
-    <p class="tm-sub">June — July 2026 // MADAN Solutions Incorporated</p>
-    <div class="tm-field"><label>Full Name</label><input type="text" placeholder="Enter your full name"></div>
-    <div class="tm-field"><label>Email Address</label><input type="email" placeholder="you@email.com"></div>
-    <div class="tm-field"><label>Phone Number</label><input type="tel" placeholder="+91 XXXXX XXXXX"></div>
-    <div class="tm-field"><label>College / University</label><input type="text" placeholder="Your institution"></div>
-    <div style="margin-bottom:1rem"><label style="display:block;font-size:.75rem;color:var(--muted);margin-bottom:.6rem;letter-spacing:.08em;text-transform:uppercase">Select Track</label>
-      <div class="tm-track-cards" id="tm-tracks">
-        <div class="tm-track" data-track="app" data-price="3500"><div class="tm-track-radio"></div><div class="tm-track-info"><div class="tm-track-name">App Developer Trainee</div><div class="tm-track-desc">Java, Firebase, Android Architecture — ₹3,500</div></div></div>
-        <div class="tm-track" data-track="web" data-price="4000"><div class="tm-track-radio"></div><div class="tm-track-info"><div class="tm-track-name">Web Developer Trainee</div><div class="tm-track-desc">Spring Boot, MongoDB, Next.js — ₹4,000</div></div></div>
-        <div class="tm-track" data-track="data" data-price="4500"><div class="tm-track-radio"></div><div class="tm-track-info"><div class="tm-track-name">Data Analyst Trainee</div><div class="tm-track-desc">TinyML, Predictive Analytics, Computer Vision — ₹4,500</div></div></div>
-      </div>
-    </div>
-    <div id="tm-price-display" style="text-align:center;margin-bottom:1rem;font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent);opacity:0;transition:opacity .3s">₹0</div>
-    <button class="pay-btn" id="pay-btn">Pay Now</button>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<script>
-/* ===== GLOBALS ===== */
-let curTheme='storm',mX=0,mY=0,pMX=0,pMY=0,mVX=0,mVY=0;
-const glassEls=[];
-
-/* ===== LOADER ===== */
-window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('loader').style.opacity='0';setTimeout(triggerLightning,2200)},1300)});
-
-/* ===== CURSOR ===== */
-const cDot=document.getElementById('cursor-dot'),cRing=document.getElementById('cursor-ring');
-let rX=0,rY=0;
-document.addEventListener('mousemove',e=>{mX=e.clientX;mY=e.clientY;cDot.style.left=mX+'px';cDot.style.top=mY+'px'});
-function cLoop(){rX+=(mX-rX)*.14;rY+=(mY-rY)*.14;const sp=Math.sqrt(mVX*mVX+mVY*mVY),sc=1+Math.min(sp*.018,1.4);cRing.style.left=rX+'px';cRing.style.top=rY+'px';cRing.style.width=(34*sc)+'px';cRing.style.height=(34*sc)+'px';cRing.style.opacity=Math.max(.15,1-sp*.008);requestAnimationFrame(cLoop)}cLoop();
-document.addEventListener('mouseover',e=>{if(e.target.closest('a,button,[role=button],.pcard,.train-card,.tm-track,.arm-btn'))document.body.classList.add('cursor-hover')});
-document.addEventListener('mouseout',e=>{if(e.target.closest('a,button,[role=button],.pcard,.train-card,.tm-track,.arm-btn'))document.body.classList.remove('cursor-hover')});
-
-/* ===== RAIN ENGINE ===== */
-const rCv=document.getElementById('rain-canvas'),rC=rCv.getContext('2d');
-let drops=[],splashes=[],windX=0,tWindX=0,rOn=true,rR=180,rG=200,rB=220,rA=.32;
-const DC=innerWidth<768?160:360;
-function rRsz(){rCv.width=innerWidth;rCv.height=innerHeight}rRsz();addEventListener('resize',rRsz);
-function mkD(f){return{x:Math.random()*rCv.width*1.4-rCv.width*.2,y:f?Math.random()*rCv.height:-Math.random()*80,len:13+Math.random()*20,spd:13+Math.random()*9,th:.5+Math.random()*1.1,a:.12+Math.random()*0.22}}
-for(let i=0;i<DC;i++)drops.push(mkD(true));
-function updRain(){
-  mVX=mX-pMX;mVY=mY-pMY;pMX=mX;pMY=mY;tWindX+=mVX*.11;tWindX*=.96;windX+=(tWindX-windX)*.04;
-  const cs=getComputedStyle(document.documentElement);
-  rOn=parseFloat(cs.getPropertyValue('--rain-on'))>.5;
-  const rc=cs.getPropertyValue('--rain-r'),gc=cs.getPropertyValue('--rain-g'),bc=cs.getPropertyValue('--rain-b');
-  rR=parseFloat(rc)||180;rG=parseFloat(gc)||200;rB=parseFloat(bc)||220;
-  rA=parseFloat(cs.getPropertyValue('--rain-alpha'))||.32;
-  if(!rOn){for(let d of drops)d.a*=.96;drops=drops.filter(d=>d.a>.008)}else{while(drops.length<DC)drops.push(mkD(false))}
-  for(let d of drops){d.x+=windX*d.spd*.055;d.y+=d.spd;if(d.y>rCv.height){if(Math.random()<.25)for(let i=0;i<2+Math.floor(Math.random()*2);i++)splashes.push({x:d.x,y:rCv.height-2,vx:(Math.random()-.5)*2.5+windX*.25,vy:-1-Math.random()*2.5,l:1});chkRipple(d.x,rCv.height-8);Object.assign(d,mkD(false))}if(d.x>rCv.width*1.3||d.x<-rCv.width*.3)Object.assign(d,mkD(false))}
-  for(let s of splashes){s.x+=s.vx;s.y+=s.vy;s.vy+=.14;s.l-=.04}splashes=splashes.filter(s=>s.l>0);
+/* FOOTER */
+footer {
+    background: var(--surface);
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
 }
-function drRain(){rC.clearRect(0,0,rCv.width,rCv.height);for(let d of drops){const a=d.a*rA;if(a<.004)continue;rC.beginPath();rC.moveTo(d.x,d.y);rC.lineTo(d.x+windX*d.len*.14,d.y+d.len);rC.strokeStyle=`rgba(${rR|0},${rG|0},${rB|0},${a})`;rC.lineWidth=d.th;rC.stroke()}for(let s of splashes){rC.beginPath();rC.arc(s.x,s.y,Math.max(.4,.8*s.l),0,Math.PI*2);rC.fillStyle=`rgba(${rR|0},${rG|0},${rB|0},${s.l*.35*rA})`;rC.fill()}}
-function rLoop(){updRain();drRain();requestAnimationFrame(rLoop)}rLoop();
 
-/* ===== RIPPLES ===== */
-function chkRipple(x,y){for(let el of glassEls){const r=el.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top-15&&y<=r.bottom&&Math.random()<.12){const rip=document.createElement('div');rip.className='glass-ripple';rip.style.left=x+'px';rip.style.top=(r.top+Math.random()*r.height*.4)+'px';rip.style.width='14px';rip.style.height='14px';document.getElementById('ripL').appendChild(rip);rip.addEventListener('animationend',()=>rip.remove());return}}}
-setTimeout(()=>{document.querySelectorAll('#nav,.pcard,.train-card').forEach(el=>glassEls.push(el))},150);
-
-/* ===== LIGHTNING ===== */
-function triggerLightning(){const el=document.getElementById('lightning');el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),70);setTimeout(()=>{el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),45)},140);setTimeout(triggerLightning,7000+Math.random()*11000)}
-
-/* ===== CLOUD WIND ===== */
-function cWind(){const s=windX*.28;document.getElementById('cl1').style.transform=`translateX(${s*1.2}px)`;document.getElementById('cl2').style.transform=`translateX(${s*.8}px)`;document.getElementById('cl3').style.transform=`translateX(${s*.5}px)`;requestAnimationFrame(cWind)}cWind();
-
-/* ===== SCROLL REVEAL ===== */
-const rObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');if(e.target.id==='sing-era')doFusion();if(e.target.id==='exp-era')doExpansion()}})},{threshold:.25});
-document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
-
-/* ===== TIMELINE ANIMS ===== */
-let fused=false;
-function doFusion(){if(fused)return;fused=true;document.querySelectorAll('.mergeable').forEach((t,i)=>setTimeout(()=>t.classList.add('thread-merged'),i*220));setTimeout(()=>{document.getElementById('fRing').classList.add('vis');document.getElementById('fTitle').classList.add('vis');triggerLightning()},850)}
-let expanded=false;
-function doExpansion(){if(expanded)return;expanded=true;document.querySelectorAll('.expandable').forEach((t,i)=>{setTimeout(()=>{t.style.transform='scale(1)';t.style.opacity='1';t.style.transition='transform .6s cubic-bezier(.34,1.56,.64,1),opacity .6s ease'},i*280)})}
-
-/* ===== TOAST ===== */
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-
-/* ===== PROJECT OVERLAY ===== */
-const ov=document.getElementById('overlay'),ovBg=document.getElementById('overlay-bg'),ovScr=document.getElementById('overlay-scroll'),ovBack=document.getElementById('overlay-back');
-let ovCleanup=null;
-
-const PD={
-  boxki:{tc:'theme-boxki',bg:'#100e08',html:()=>`<div class="ov-inner"><h2 class="ov-title" style="color:#ff9f43">BOXKI</h2><p class="ov-sub">The Empathy Companion — Inner Sanctum</p><p class="ov-text">BOXKI is a desktop AI companion powered by a Raspberry Pi Zero 2W. It uses TinyML models to analyze facial expressions and vocal tone in real-time, providing sentiment visualization directly on your screen. No cloud. No latency. Pure on-device emotional intelligence.</p><div class="boxki-mon" id="bxki-m"><div class="boxki-bot"><div class="boxki-ant"></div><div class="boxki-hd"><div class="boxki-eye l" id="bxe-l"></div><div class="boxki-eye r" id="bxe-r"></div><div class="boxki-mth"></div></div><div class="boxki-bd"></div></div><div class="boxki-spk" id="bxki-sp">I sense your presence. Let me analyze the ambient情绪.</div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin-top:1.5rem"><div class="ov-card"><div class="ov-card-label" style="color:#ff9f43">Core Hardware</div><p>Raspberry Pi Zero 2W with Coral Edge TPU for on-device TinyML inference at 30fps.</p></div><div class="ov-card"><div class="ov-card-label" style="color:#ff9f43">Emotional Model</div><p>Custom CNN mapping 7 universal emotions from micro-expression analysis.</p></div><div class="ov-card"><div class="ov-card-label" style="color:#ff9f43">Privacy First</div><p>All processing is local. No data leaves the device. Ever.</p></div></div></div>`,
-    init:()=>{const mon=document.getElementById('bxki-m'),eL=document.getElementById('bxe-l'),eR=document.getElementById('bxe-r'),sp=document.getElementById('bxki-sp');if(!mon)return;const msgs=['I sense calm focus. The storm outside mirrors the storm within.','Your cursor moves with intent. That tells me something.','Empathy is not learned. It is remembered.','The Pi Zero 2W processes 30fps of human truth.','I see you. That is the most powerful thing a machine can say.'];let si=0;function tk(e){if(!document.getElementById('bxki-m'))return;const r=mon.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=(e.clientX-cx)/r.width,dy=(e.clientY-cy)/r.height,mxx=Math.max(-3,Math.min(3,dx*6)),myy=Math.max(-2,Math.min(2,dy*5));if(eL)eL.style.transform=`translate(${mxx}px,${myy}px)`;if(eR)eR.style.transform=`translate(${mxx}px,${myy}px)`}document.addEventListener('mousemove',tk);sp.classList.add('show');const iv=setInterval(()=>{if(!document.getElementById('bxki-sp')){clearInterval(iv);document.removeEventListener('mousemove',tk);return}si=(si+1)%msgs.length;sp.classList.remove('show');setTimeout(()=>{sp.textContent=msgs[si];sp.classList.add('show')},450)},4500);ovCleanup=()=>{clearInterval(iv);document.removeEventListener('mousemove',tk)}}},
-
-  arm:{tc:'theme-forge',bg:'#100602',html:()=>`<div class="ov-inner"><h2 class="ov-title" style="color:#ff4500">MADAN-Arm</h2><p class="ov-sub">The Gear-Driven Prosthetic — The Forge</p><p class="ov-text">Traditional prosthetics rely on cable-and-thread systems that degrade and imprecisely transmit force. MADAN-Arm replaces this with a patented gear-based actuation mechanism — delivering surgical precision with mechanical elegance.</p><div id="arm-box"></div><div class="arm-btns"><button class="arm-btn act" id="arm-norm">Solid View</button><button class="arm-btn" id="arm-xr">X-Ray View</button><button class="arm-btn" id="arm-rot">Auto Rotate</button></div><div class="arm-patent"><div style="color:#ff4500;font-weight:600;margin-bottom:.4rem">Invention Disclosure Excerpt</div>Mechanism: Spur gear train, anti-backlash compensation<br>Gear ratio: 3:1 primary / 5:1 secondary cascade<br>Torque efficiency: &eta; = 0.94 per stage<br>Material: PA12-GF30 (glass-filled nylon) via SLS<br>DOF: 5 (shoulder flex/extend, rotate, elbow, wrist, grip)<br>Patent: Filed under Indian Patent Act, Section 8</div></div>`,
-    init:()=>{window.dispatchEvent(new Event('open-arm'))}},
-
-  martuno:{tc:'theme-nexus',bg:'#030810',html:()=>`<div class="ov-inner"><h2 class="ov-title" style="color:#00ff88">martUno</h2><p class="ov-sub">The Hyperlocal Engine — Nexus Grid</p><p class="ov-text">A 3-level hyperlocal commerce system and the Teezz Shopkeeper platform. martUno bridges the gap between local shopkeepers and the digital economy — transforming manual inventory into real-time digital intelligence.</p><div style="perspective:800px;margin:2rem 0"><div class="iso-grid" id="mGrid"></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem"><div style="text-align:center;padding:1rem;border-radius:10px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1)"><div style="font-size:1.6rem;font-weight:800;color:#00ff88;font-family:'Space Grotesk'" id="mc1">0</div><div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Active Shops</div></div><div style="text-align:center;padding:1rem;border-radius:10px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1)"><div style="font-size:1.6rem;font-weight:800;color:#00ff88;font-family:'Space Grotesk'" id="mc2">0</div><div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Items Tracked</div></div><div style="text-align:center;padding:1rem;border-radius:10px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1)"><div style="font-size:1.6rem;font-weight:800;color:#00ff88;font-family:'Space Grotesk'" id="mc3">0%</div><div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Demand Match</div></div></div></div>`,
-    init:()=>{const g=document.getElementById('mGrid');if(!g)return;g.innerHTML='';const cls=['rgba(0,255,136,.12)','rgba(0,200,100,.1)','rgba(0,180,90,.08)','rgba(0,220,120,.14)'],hs=[38,52,28,62,42,32,56,48,35,66,40,52,46,30,55,42];for(let i=0;i<16;i++){const b=document.createElement('div');b.className='iso-b';b.style.background=cls[i%4];b.style.height=hs[i]+'px';b.innerHTML=`<div class="iso-bub" style="animation-delay:${i*.18}s"></div>`;g.appendChild(b)}animC('mc1',0,247,1400);animC('mc2',0,18420,1800);animC('mc3',0,94,1600,'%')}},
-
-  agri:{tc:'theme-terra',bg:'#060e06',html:()=>`<div class="ov-inner"><h2 class="ov-title" style="color:#4ade80">Agri-Predictor</h2><p class="ov-sub">Manual Soil Intelligence — Terraform</p><p class="ov-text">No satellites. No drones. No geo-mapping. A farmer's hands, a soil kit, and a dashboard that turns raw environmental data into actionable crop intelligence. Feed the tree. Watch it respond.</p><canvas id="agri-cv"></canvas><div class="agri-ctrls"><div class="agri-in"><label>pH Level</label><input type="range" id="aPh" min="0" max="14" value="7" step="0.1"><span id="aPhV">7.0</span></div><div class="agri-in"><label>Moisture %</label><input type="range" id="aMo" min="0" max="100" value="50"><span id="aMoV">50%</span></div><div class="agri-in"><label>Nitrogen</label><input type="range" id="aNi" min="0" max="100" value="40"><span id="aNiV">40</span></div><div class="agri-in"><label>Phosphorus</label><input type="range" id="aPo" min="0" max="100" value="35"><span id="aPoV">35</span></div><div class="agri-in"><label>Potassium</label><input type="range" id="aPo2" min="0" max="100" value="45"><span id="aPo2V">45</span></div></div><div id="agriRes" style="text-align:center;margin-top:1.2rem;padding:1rem;border-radius:10px;background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.1)"><span style="font-size:.82rem;color:var(--muted)">Adjust parameters to see the tree respond</span></div></div>`,
-    init:()=>{const cv=document.getElementById('agri-cv');if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=cv.offsetHeight*2;ctx.scale(2,2);const w=cv.offsetWidth,h=cv.offsetHeight;
-      function gH(){const ph=parseFloat(document.getElementById('aPh')?.value||7),mo=parseFloat(document.getElementById('aMo')?.value||50),n=parseFloat(document.getElementById('aNi')?.value||40),p=parseFloat(document.getElementById('aPo')?.value||35),k=parseFloat(document.getElementById('aPo2')?.value||45);return Math.max(0,Math.min(1,(Math.max(0,1-Math.abs(ph-6.75)/6))*.25+mo/100*.25+n/100*.2+p/100*.15+k/100*.15))}
-      function dT(x,y,l,a,d,hp){if(d===0||l<2)return;const ex=x+Math.cos(a)*l*(.5+hp*.5),ey=y-Math.sin(a)*l*(.5+hp*.5);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(ex,ey);ctx.strokeStyle=d>3?`rgba(90,58,26,${.4+hp*.5})`:`rgba(60,120,40,${.25+hp*.5})`;ctx.lineWidth=Math.max(.4,d*1.1*hp);ctx.stroke();if(d<=2&&hp>.25){ctx.beginPath();ctx.arc(ex,ey,1.5+hp*3.5,0,Math.PI*2);ctx.fillStyle=`rgba(74,222,128,${hp*.35})`;ctx.fill()}const sp=.32+hp*.22;dT(ex,ey,l*.67,a+sp,d-1,hp);dT(ex,ey,l*.67,a-sp,d-1,hp);if(d>4&&hp>.45)dT(ex,ey,l*.48,a,d-2,hp*.8)}
-      function ren(){if(!document.getElementById('agri-cv'))return;ctx.clearRect(0,0,w,h);const hp=gH();const gr=ctx.createRadialGradient(w/2,h-25,8,w/2,h-25,100+hp*70);gr.addColorStop(0,`rgba(74,222,128,${hp*.12})`);gr.addColorStop(1,'rgba(74,222,128,0)');ctx.fillStyle=gr;ctx.fillRect(0,0,w,h);dT(w/2,h-18,42+hp*28,Math.PI/2,8,hp);const res=document.getElementById('agriRes');if(res){let c='Barren — adjust parameters';if(hp>.8)c='Wheat — Optimal conditions detected';else if(hp>.65)c='Rice — Favorable for paddy cultivation';else if(hp>.5)c='Millets — Moderate soil health';else if(hp>.3)c='Pulses — Low-nutrient tolerant';res.innerHTML=`<span style="color:#4ade80;font-weight:600;font-family:'Space Grotesk',sans-serif">${c}</span><br><span style="font-size:.72rem;color:var(--muted)">Soil Health Index: ${(hp*100).toFixed(1)}%</span>`}requestAnimationFrame(ren)}ren();
-      [['aPh','aPhV',v=>parseFloat(v).toFixed(1)],['aMo','aMoV',v=>v+'%'],['aNi','aNiV',v=>v],['aPo','aPoV',v=>v],['aPo2','aPo2V',v=>v]].forEach(([id,vid,fmt])=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>{const vl=document.getElementById(vid);if(vl)vl.textContent=fmt(el.value)})})}},
-
-  cutie:{tc:'theme-thread',bg:'#0c0818',html:()=>`<div class="ov-inner"><h2 class="ov-title" style="color:#ff6b9d">Cutie Connect</h2><p class="ov-sub">The Shared Thread</p><p class="ov-text">Move your cursor to draw. The ghost cursor traces a parallel path — a digital representation of intimate creative collaboration. Shared reminders and the Shared Mobile Canvas Widget brought to life.</p><canvas id="cutie-cv"></canvas><div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;align-items:center"><button class="arm-btn" style="border-color:rgba(255,107,157,.25);color:#ff6b9d;background:rgba(255,107,157,.06)" id="cutie-clr">Clear Canvas</button><span style="font-size:.72rem;color:var(--muted)"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff6b9d;vertical-align:middle"></span> You &nbsp; <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#00d4ff;vertical-align:middle"></span> Partner</span></div></div>`,
-    init:()=>{const cv=document.getElementById('cutie-cv');if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=cv.offsetHeight*2;ctx.scale(2,2);const w=cv.offsetWidth,h=cv.offsetHeight;let uX=w/2,uY=h/2,dr=false,gX=w/2,gY=h/2,uP=[],gP=[],gA=0;
-      cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();uX=e.clientX-r.left;uY=e.clientY-r.top;if(dr)uP.push({x:uX,y:uY})});
-      cv.addEventListener('mousedown',()=>{dr=true;uP=[{x:uX,y:uY}]});
-      cv.addEventListener('mouseup',()=>{dr=false});
-      cv.addEventListener('touchstart',e=>{e.preventDefault();dr=true;const t=e.touches[0],r=cv.getBoundingClientRect();uX=t.clientX-r.left;uY=t.clientY-r.top;uP=[{x:uX,y:uY}]},{passive:false});
-      cv.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0],r=cv.getBoundingClientRect();uX=t.clientX-r.left;uY=t.clientY-r.top;if(dr)uP.push({x:uX,y:uY})},{passive:false});
-      cv.addEventListener('touchend',()=>{dr=false});
-      function ren(){if(!document.getElementById('cutie-cv'))return;gA+=.02;const tgX=uX+Math.sin(gA)*35+18,tgY=uY+Math.cos(gA*.7)*28+12;gX+=(tgX-gX)*.028;gY+=(tgY-gY)*.028;if(dr)gP.push({x:gX,y:gY});
-        if(uP.length>1){ctx.beginPath();ctx.moveTo(uP[0].x,uP[0].y);for(let i=1;i<uP.length;i++)ctx.lineTo(uP[i].x,uP[i].y);ctx.strokeStyle='rgba(255,107,157,.55)';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke()}
-        if(gP.length>1){ctx.beginPath();ctx.moveTo(gP[0].x,gP[0].y);for(let i=1;i<gP.length;i++)ctx.lineTo(gP[i].x,gP[i].y);ctx.strokeStyle='rgba(0,212,255,.35)';ctx.lineWidth=1.5;ctx.lineCap='round';ctx.stroke()}
-        ctx.beginPath();ctx.arc(uX,uY,5,0,Math.PI*2);ctx.fillStyle='#ff6b9d';ctx.fill();ctx.beginPath();ctx.arc(uX,uY,8,0,Math.PI*2);ctx.strokeStyle='rgba(255,107,157,.35)';ctx.lineWidth=1;ctx.stroke();
-        ctx.beginPath();ctx.arc(gX,gY,4,0,Math.PI*2);ctx.fillStyle='#00d4ff';ctx.fill();ctx.beginPath();ctx.arc(gX,gY,7,0,Math.PI*2);ctx.strokeStyle='rgba(0,212,255,.25)';ctx.lineWidth=1;ctx.stroke();
-        requestAnimationFrame(ren)}ren();
-      document.getElementById('cutie-clr')?.addEventListener('click',()=>{ctx.clearRect(0,0,w,h);uP=[];gP=[]})}},
-
-  lens:{tc:'theme-lens',bg:'#030610',html:()=>`<div class="ov-inner"><h2 class="ov-title" style="color:#00d4ff">Intelligent Lens System</h2><p class="ov-sub">Invention Disclosure Filed — Optics Lab</p><p class="ov-text">An emotion recognition hardware system utilizing adaptive VR optics and intelligent lens-flare technology. Major share control of the Invention Disclosure Form — representing MADAN Solutions' deepest dive into the intersection of optics and artificial intelligence.</p><canvas id="lens-cv"></canvas><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin-top:1.5rem"><div class="ov-card"><div class="ov-card-label" style="color:#00d4ff">Adaptive Optics</div><p>Dynamic lens curvature adjustment based on real-time environmental light analysis.</p></div><div class="ov-card"><div class="ov-card-label" style="color:#00d4ff">Emotion Mapping</div><p>Chromatic aberration patterns mapped to 7 emotional states via proprietary algorithms.</p></div><div class="ov-card"><div class="ov-card-label" style="color:#00d4ff">IP Status</div><p>Invention Disclosure Filed. Major share control retained by MADAN Solutions Incorporated.</p></div></div></div>`,
-    init:()=>{const cv=document.getElementById('lens-cv');if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=cv.offsetHeight*2;ctx.scale(2,2);const w=cv.offsetWidth,h=cv.offsetHeight;let t=0;
-      function ren(){if(!document.getElementById('lens-cv'))return;t+=.008;ctx.clearRect(0,0,w,h);
-        // Grid
-        ctx.strokeStyle='rgba(0,212,255,.04)';ctx.lineWidth=.5;
-        for(let x=0;x<w;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
-        for(let y=0;y<h;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
-        const cx=w/2,cy=h/2;
-        // Outer rings
-        for(let i=5;i>=0;i--){const r=40+i*30+Math.sin(t+i*.5)*5;ctx.beginPath();ctx.arc(cx,cy,Math.max(1,r),0,Math.PI*2);ctx.strokeStyle=`rgba(0,212,255,${.06+i*.02})`;ctx.lineWidth=1;ctx.stroke()}
-        // Chromatic circles
-        const off=8+Math.sin(t*2)*4;
-        ctx.beginPath();ctx.arc(cx-off,cy,55+Math.sin(t)*3,0,Math.PI*2);ctx.strokeStyle='rgba(255,50,50,.15)';ctx.lineWidth=1.5;ctx.stroke();
-        ctx.beginPath();ctx.arc(cx,cy-off*.5,55+Math.sin(t)*3,0,Math.PI*2);ctx.strokeStyle='rgba(50,255,50,.12)';ctx.lineWidth=1.5;ctx.stroke();
-        ctx.beginPath();ctx.arc(cx+off*.7,cy+off*.3,55+Math.sin(t)*3,0,Math.PI*2);ctx.strokeStyle='rgba(50,50,255,.12)';ctx.lineWidth=1.5;ctx.stroke();
-        // Center glow
-        const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,80);cg.addColorStop(0,'rgba(0,212,255,.12)');cg.addColorStop(1,'rgba(0,212,255,0)');ctx.fillStyle=cg;ctx.fillRect(0,0,w,h);
-        // Light rays
-        for(let i=0;i<12;i++){const a=t*.5+i*Math.PI/6;const len=120+Math.sin(t*3+i)*40;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*len,cy+Math.sin(a)*len);ctx.strokeStyle=`rgba(0,212,255,${.03+Math.sin(t*2+i)*.02})`;ctx.lineWidth=1;ctx.stroke()}
-        // Flare dots
-        for(let i=0;i<6;i++){const a=t+i*Math.PI/3;const d=90+Math.sin(t*1.5+i*2)*25;const fx=cx+Math.cos(a)*d,fy=cy+Math.sin(a)*d;const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,8);fg.addColorStop(0,`rgba(0,212,255,${.2+Math.sin(t+i)*.1})`);fg.addColorStop(1,'rgba(0,212,255,0)');ctx.fillStyle=fg;ctx.fillRect(fx-8,fy-8,16,16)}
-        // Labels
-        ctx.font='9px "Share Tech Mono",monospace';ctx.fillStyle='rgba(0,212,255,.3)';
-        ctx.fillText('ADAPTIVE CURVATURE: '+((6.5+Math.sin(t)*.5).toFixed(1))+'D',cx+70,cy-60);
-        ctx.fillText('ABERRATION COEFF: '+(off*.012).toFixed(4),cx+70,cy-45);
-        ctx.fillText('EMOTION MAP: ACTIVE',cx+70,cy-30);
-        requestAnimationFrame(ren)}ren()}}
-};
-
-function openProj(key){
-  const p=PD[key];if(!p)return;curTheme=key;
-  document.body.classList.add(p.tc);
-  ovBg.style.background=p.bg;
-  ovScr.innerHTML=p.html();
-  ov.classList.add('on');
-  document.body.style.overflow='hidden';
-  setTimeout(()=>{ovScr.querySelectorAll('.pcard').forEach(el=>glassEls.push(el));p.init()},120);
+footer a {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
 }
-function closeProj(){
-  if(ovCleanup){ovCleanup();ovCleanup=null}
-  window.dispatchEvent(new Event('close-arm'));
-  ov.classList.remove('on');
-  document.body.style.overflow='';
-  document.body.classList.remove('theme-boxki','theme-forge','theme-nexus','theme-terra','theme-thread','theme-lens');
-  curTheme='storm';
-  setTimeout(()=>{ovScr.innerHTML=''},500);
+
+footer a:hover {
+    text-decoration: underline;
 }
-ovBack.addEventListener('click',closeProj);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('train-modal').classList.contains('on'))closeTM();else if(ov.classList.contains('on'))closeProj()}});
-document.querySelectorAll('.pcard').forEach(c=>{c.addEventListener('click',()=>openProj(c.dataset.p));c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openProj(c.dataset.p)}})});
 
-/* ===== COUNTER ANIM ===== */
-function animC(id,from,to,dur,suf=''){const el=document.getElementById(id);if(!el)return;const st=performance.now();function tk(n){const t=Math.min((n-st)/dur,1),e=1-Math.pow(1-t,3);el.textContent=Math.floor(from+(to-from)*e).toLocaleString()+suf;if(t<1)requestAnimationFrame(tk)}requestAnimationFrame(tk)}
-
-/* ===== TRAINING MODAL ===== */
-const tmModal=document.getElementById('train-modal');
-let selTrack=null,selPrice=0;
-document.getElementById('apply-btn').addEventListener('click',()=>{tmModal.classList.add('on');document.body.style.overflow='hidden'});
-document.getElementById('train-modal-close').addEventListener('click',closeTM);
-document.getElementById('train-modal-bg').addEventListener('click',closeTM);
-function closeTM(){tmModal.classList.remove('on');if(!ov.classList.contains('on'))document.body.style.overflow=''}
-document.querySelectorAll('.tm-track').forEach(tc=>{tc.addEventListener('click',()=>{document.querySelectorAll('.tm-track').forEach(t=>t.classList.remove('sel'));tc.classList.add('sel');selTrack=tc.dataset.track;selPrice=parseInt(tc.dataset.price);const pd=document.getElementById('tm-price-display');pd.textContent='₹'+selPrice.toLocaleString();pd.style.opacity='1'})});
-document.getElementById('pay-btn').addEventListener('click',()=>{
-  if(!selTrack){showToast('Please select a training track first');return}
-  const name=document.querySelector('#train-modal-box input[type=text]').value;
-  const email=document.querySelector('#train-modal-box input[type=email]').value;
-  if(!name||!email){showToast('Please fill in your name and email');return}
-  showToast('Application submitted for '+selTrack.toUpperCase()+' track — ₹'+selPrice.toLocaleString());
-  setTimeout(closeTM,1500);
-});
-</script>
-
-<!-- ===== THREE.JS — MADAN-ARM ===== -->
-<script type="module">
-import*as THREE from'three';
-import{OrbitControls}from'three/addons/controls/OrbitControls.js';
-
-let scene,camera,renderer,controls,armGr,gears=[],animId=null,isXray=false,autoRot=false;
-let initialized=false;
-
-function initArm(){
-  const box=document.getElementById('arm-box');
-  if(!box||initialized)return;initialized=true;
-
-  scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x080402);
-  scene.fog=new THREE.FogExp2(0x080402,.08);
-
-  camera=new THREE.PerspectiveCamera(45,box.offsetWidth/Math.max(1,box.offsetHeight),.1,100);
-  camera.position.set(0,2,6);
-
-  renderer=new THREE.WebGLRenderer({antialias:true});
-  renderer.setSize(box.offsetWidth,box.offsetHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.shadowMap.enabled=true;
-  box.appendChild(renderer.domElement);
-
-  controls=new OrbitControls(camera,renderer.domElement);
-  controls.enableDamping=true;controls.dampingFactor=.06;controls.target.set(0,1,0);controls.autoRotate=false;controls.autoRotateSpeed=2;
-
-  // Lights
-  const amb=new THREE.AmbientLight(0x221100,.6);scene.add(amb);
-  const dl=new THREE.DirectionalLight(0xff6600,1.8);dl.position.set(3,5,2);dl.castShadow=true;scene.add(dl);
-  const pl=new THREE.PointLight(0xff4500,.8,10);pl.position.set(-2,3,-1);scene.add(pl);
-  const rim=new THREE.PointLight(0xff8800,.4,8);rim.position.set(0,0,-3);scene.add(rim);
-
-  armGr=new THREE.Group();
-
-  // Materials
-  const metalMat=new THREE.MeshStandardMaterial({color:0x6a6a78,metalness:.92,roughness:.28});
-  const darkMat=new THREE.MeshStandardMaterial({color:0x3a3a44,metalness:.85,roughness:.35});
-  const gearMat=new THREE.MeshStandardMaterial({color:0xcc5500,metalness:.88,roughness:.22});
-  const gearXrayMat=new THREE.MeshStandardMaterial({color:0xff6600,metalness:.5,roughness:.3,transparent:true,opacity:.45,wireframe:false});
-  const xrayShell=new THREE.MeshStandardMaterial({color:0x444455,metalness:.6,roughness:.4,transparent:true,opacity:.12,wireframe:true});
-
-  function mkGear(iR,oR,teeth,depth){
-    const shape=new THREE.Shape();
-    const step=(Math.PI*2)/teeth;
-    const tH=step*.3;
-    for(let i=0;i<teeth;i++){
-      const a=i*step;
-      const pts=[[a-tH,iR],[a-tH*.35,oR],[a+tH*.35,oR],[a+tH,iR]];
-      pts.forEach(([ang,r],j)=>{
-        const x=Math.cos(ang)*Math.max(.01,r),y=Math.sin(ang)*Math.max(.01,r);
-        if(i===0&&j===0)shape.moveTo(x,y);else shape.lineTo(x,y);
-      });
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .headline {
+        font-size: 42px;
     }
-    shape.closePath();
-    const hole=new THREE.Path();hole.absarc(0,0,Math.max(.01,iR*.3),0,Math.PI*2,true);shape.holes.push(hole);
-    const geo=new THREE.ExtrudeGeometry(shape,{depth:Math.max(.01,depth),bevelEnabled:false});
-    return geo;
-  }
 
-  // Base plate
-  const base=new THREE.Mesh(new THREE.CylinderGeometry(.8,.9,.15,16),darkMat);
-  base.position.y=.075;base.castShadow=true;armGr.add(base);
-
-  // Lower arm
-  const lowerArm=new THREE.Mesh(new THREE.BoxGeometry(.5,1.8,.5),metalMat);
-  lowerArm.position.y=1.05;lowerArm.castShadow=true;armGr.add(lowerArm);
-  const lowerShell=new THREE.Mesh(new THREE.BoxGeometry(.52,1.82,.52),xrayShell.clone());
-  lowerShell.position.y=1.05;armGr.add(lowerShell);
-
-  // Gear 1 - at elbow
-  const g1=new THREE.Mesh(mkGear(.25,.4,12,.18),gearMat.clone());
-  g1.rotation.y=Math.PI/2;g1.position.set(0,1.9,.15);armGr.add(g1);gears.push(g1);
-
-  // Gear 2 - meshes with g1
-  const g2=new THREE.Mesh(mkGear(.18,.32,10,.18),gearMat.clone());
-  g2.rotation.y=Math.PI/2;g2.position.set(.35,1.9,.15);armGr.add(g2);gears.push(g2);
-
-  // Upper arm
-  const upperArm=new THREE.Mesh(new THREE.BoxGeometry(.4,1.4,.4),metalMat);
-  upperArm.position.set(.35,2.7,.15);upperArm.rotation.z=-.3;upperArm.castShadow=true;armGr.add(upperArm);
-  const upperShell=new THREE.Mesh(new THREE.BoxGeometry(.42,1.42,.42),xrayShell.clone());
-  upperShell.position.set(.35,2.7,.15);upperShell.rotation.z=-.3;armGr.add(upperShell);
-
-  // Gear 3 - at wrist
-  const g3=new THREE.Mesh(mkGear(.15,.25,8,.12),gearMat.clone());
-  g3.rotation.y=Math.PI/2;g3.position.set(.55,3.35,.15);armGr.add(g3);gears.push(g3);
-
-  // Gear 4 - small at wrist
-  const g4=new THREE.Mesh(mkGear(.1,.18,6,.12),gearMat.clone());
-  g4.rotation.y=Math.PI/2;g4.position.set(.55,3.35,.35);armGr.add(g4);gears.push(g4);
-
-  // Hand/grip
-  const gripBase=new THREE.Mesh(new THREE.BoxGeometry(.3,.15,.25),darkMat);
-  gripBase.position.set(.6,3.6,.15);armGr.add(gripBase);
-  const f1=new THREE.Mesh(new THREE.BoxGeometry(.06,.35,.06),metalMat);f1.position.set(.52,3.35,.1);armGr.add(f1);
-  const f2=new THREE.Mesh(new THREE.BoxGeometry(.06,.35,.06),metalMat);f2.position.set(.52,3.35,.2);armGr.add(f2);
-  const f3=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,.06),metalMat);f3.position.set(.68,3.38,.15);armGr.add(f3);
-
-  // Joint spheres
-  const jMat=new THREE.MeshStandardMaterial({color:0x555566,metalness:.9,roughness:.3});
-  const j1=new THREE.Mesh(new THREE.SphereGeometry(.18,12,12),jMat);j1.position.set(0,.15,0);armGr.add(j1);
-  const j2=new THREE.Mesh(new THREE.SphereGeometry(.22,12,12),jMat);j2.position.set(0,1.9,.15);armGr.add(j2);
-  const j3=new THREE.Mesh(new THREE.SphereGeometry(.15,12,12),jMat);j3.position.set(.55,3.35,.15);armGr.add(j3);
-
-  scene.add(armGr);
-
-  // Buttons
-  document.getElementById('arm-norm')?.addEventListener('click',function(){
-    isXray=false;this.classList.add('act');document.getElementById('arm-xr')?.classList.remove('act');
-    armGr.traverse(c=>{if(c.isMesh&&c.material){if(c.material===xrayShell||c.material.opacity<.2){c.visible=true;c.material.opacity=c.material.wireframe?.15:.12}else{c.material.transparent=false;c.material.opacity=1;c.material.wireframe=false}}});
-  });
-  document.getElementById('arm-xr')?.addEventListener('click',function(){
-    isXray=true;this.classList.add('act');document.getElementById('arm-norm')?.classList.remove('act');
-    armGr.traverse(c=>{if(c.isMesh&&c.material){if(c.material===darkMat||c.material===metalMat||c.material===jMat){c.material.transparent=true;c.material.opacity=.1;c.material.wireframe=true}else if(c.material.color&&c.material.color.r>.7&&c.material.color.g<.5){c.material.transparent=true;c.material.opacity=.7;c.material.wireframe=false}else{c.material.transparent=true;c.material.opacity=.25;c.material.wireframe=false}}});
-  });
-  document.getElementById('arm-rot')?.addEventListener('click',function(){autoRot=!autoRot;controls.autoRotate=autoRot;this.classList.toggle('act')});
-
-  function animate(){
-    if(!document.getElementById('arm-box')){animId=null;return}
-    animId=requestAnimationFrame(animate);
-    const t=performance.now()*.001;
-    gears.forEach((g,i)=>{g.rotation.z=t*(i%2===0?1:-1)*(.8+i*.3)});
-    controls.update();
-    renderer.render(scene,camera);
-  }
-  animate();
+    .subhead {
+        font-size: 18px;
+    }
 }
 
-window.addEventListener('open-arm',()=>{setTimeout(initArm,200)});
-window.addEventListener('close-arm',()=>{if(animId){cancelAnimationFrame(animId);animId=null}initialized=false});
-</script>
-</body>
-</html>
+@media (max-width: 768px) {
+    .nav {
+        flex-direction: column;
+        justify-content: center;
+        gap: 16px;
+        padding: 20px 0;
+    }
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .brand img {
+        width: 38px;
+        height: 38px;
+    }
+
+    .headline {
+        font-size: 34px;
+    }
+
+    .card {
+        padding: 24px;
+    }
+
+    .card h1 {
+        font-size: 26px;
+    }
+
+    .split {
+        grid-template-columns: 1fr;
+    }
+
+    .cta-row {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .headline {
+        font-size: 28px;
+    }
+
+    .subhead {
+        font-size: 16px;
+    }
+
+    .container {
+        width: 94%;
+    }
+}
